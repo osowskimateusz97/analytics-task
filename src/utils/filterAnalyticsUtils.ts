@@ -1,4 +1,4 @@
-import { ChannelAnalytics } from "~/types/analytics";
+import { ChannelAnalytics } from "@/types/analytics";
 import { parseISO, isWithinInterval } from "date-fns";
 
 /**
