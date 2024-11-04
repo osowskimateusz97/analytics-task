@@ -1,27 +1,33 @@
+import { ModeToggle } from "@/components/mode-toggle";
 import { getAnalytics } from "@/queries/getAnalytics";
 import { useQuery } from "@tanstack/react-query";
-import { subWeeks } from "date-fns";
-import { useState } from "react";
-
-const LAST_MONTH = subWeeks(new Date(), 5);
-const TODAY_DATE = new Date();
-
-const defaultConfig = {
-  startDate: LAST_MONTH,
-  endDate: TODAY_DATE,
-};
+import { AnalyticsFiltersForm } from "@/components/analytics-filters-form";
+import { useDateRange } from "@/providers/date/dateHook";
+import { format } from "date-fns";
 
 function Homepage() {
-  const [date, setDate] = useState(defaultConfig);
-  const { startDate, endDate } = date;
+  const {
+    dateRange: { from, to },
+  } = useDateRange();
+
   // Queries
-  const query = useQuery({
-    queryKey: [startDate, endDate],
-    queryFn: () => getAnalytics(startDate, endDate),
+  const { isLoading, isError, isSuccess, data } = useQuery({
+    queryKey: [format(from, "yyyy-MM-dd"), format(to, "yyyy-MM-dd")],
+    queryFn: () => getAnalytics(from!, to!),
+    enabled: !!(from && to),
   });
+
   return (
     <div>
-      <h1 className="text-blue">Hello world!</h1>
+      <ModeToggle />
+      <AnalyticsFiltersForm />
+      {isLoading ? <p>Fetching data..</p> : null}
+      {isError ? <p>Error during fetching analitics</p> : null}
+      {isSuccess && data
+        ? data.map((analytics, idx) => (
+            <p key={idx}>{analytics.channel_name}</p>
+          ))
+        : null}
     </div>
   );
 }
