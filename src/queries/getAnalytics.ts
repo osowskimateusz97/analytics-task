@@ -1,6 +1,6 @@
-import analiticsData from "@/mocks/analyticsMock.json";
+import analiticsData from "@/db/analytics.json";
 import { ChannelAnalytics } from "@/types/analytics";
-import { filterDataByDateRange } from "@/utils/filterAnalytics";
+import { filterDataByDateRange } from "@/utils/filterAnalyticsUtils";
 
 /**
  * Fetches analytics data filtered by date range.
