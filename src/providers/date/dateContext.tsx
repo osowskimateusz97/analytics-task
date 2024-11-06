@@ -1,11 +1,11 @@
-import { APP_CONFIG } from "@/config";
 import { createContext } from "react";
 import { DateProviderState } from "./dateProvider";
-import { DateRange } from "@/types/dates";
+import { appConfig } from "@/config";
+import { DateRange } from "@/types/appConfig";
 
 const initialState: DateProviderState = {
-  dateRange: APP_CONFIG.DATE_PICKER,
-  setDateRange: (_: DateRange) => {},
+  dateRange: appConfig.datePicker,
+  handleDateRange: (_: DateRange) => {},
 };
 
 // Creating the context

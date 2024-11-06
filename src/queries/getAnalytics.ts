@@ -1,6 +1,7 @@
-import analiticsData from "@/db/analytics.json";
-import { ChannelAnalytics } from "@/types/analytics";
+import analyticsData from "@/db/analytics.json";
+import { ApiResponse, MappedAnalyticsData } from "@/types/analytics";
 import { filterDataByDateRange } from "@/utils/filterAnalyticsUtils";
+import { analyticsDataMapping } from "@/utils/mappings/analyticsDataMapping";
 
 /**
  * Fetches analytics data filtered by date range.
@@ -17,15 +18,13 @@ import { filterDataByDateRange } from "@/utils/filterAnalyticsUtils";
 export const getAnalytics = async (
   startDate: Date,
   endDate: Date
-): Promise<ChannelAnalytics[]> => {
+): Promise<MappedAnalyticsData> => {
   // TODO: Replace the following logic with a real API request when backend is ready.
   const filteredAnalyticsByDate = filterDataByDateRange(
-    analiticsData,
+    analyticsData as ApiResponse[],
     startDate,
     endDate
   );
-
-  return new Promise((res) =>
-    setTimeout(() => res(filteredAnalyticsByDate), 2000)
-  );
+  const mappedData = analyticsDataMapping(filteredAnalyticsByDate);
+  return new Promise((res) => setTimeout(() => res(mappedData), 2000));
 };

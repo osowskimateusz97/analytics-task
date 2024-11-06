@@ -1,4 +1,4 @@
-import { ChannelAnalytics } from "@/types/analytics";
+import { ApiResponse } from "@/types/analytics";
 import { parseISO, isWithinInterval } from "date-fns";
 
 /**
@@ -10,7 +10,7 @@ import { parseISO, isWithinInterval } from "date-fns";
  * @returns A filtered array of analytics data.
  */
 export function filterDataByDateRange(
-  data: ChannelAnalytics[],
+  data: ApiResponse[],
   startDate: Date,
   endDate: Date
 ) {

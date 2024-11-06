@@ -1,4 +1,4 @@
-import { ModeToggle } from "@/components/mode-toggle";
+import { ModeToggle } from "@/components/ui/mode-toggle";
 import { getAnalytics } from "@/queries/getAnalytics";
 import { useQuery } from "@tanstack/react-query";
 import { AnalyticsFiltersForm } from "@/components/analytics-filters-form";
@@ -22,7 +22,7 @@ function Homepage() {
       <ModeToggle />
       <AnalyticsFiltersForm />
       {isLoading ? <p>Fetching data..</p> : null}
-      {isError ? <p>Error during fetching analitics</p> : null}
+      {isError ? <p>Error during fetching analytics</p> : null}
       {isSuccess && data
         ? data.map((analytics, idx) => (
             <p key={idx}>{analytics.channel_name}</p>
