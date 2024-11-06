@@ -7,22 +7,18 @@ import {
   MappedAnalyticsData,
 } from "@/types/analytics";
 import { Brand } from "@/types/appConfig";
-import { appConfig } from "@/config";
+import { getBrandLogo } from "./config";
 
-export const getTotalSales = (
-  preprocessedData: MappedAnalyticsData
-): string => {
-  const totalSales = preprocessedData.aggregatedByChannel.reduce(
+export const getTotalSales = (analyticsData: MappedAnalyticsData): string => {
+  const totalSales = analyticsData.aggregatedByChannel.reduce(
     (acc, channel) => acc + channel.total_sales,
     0
   );
   return formatCurrencyPLN(totalSales);
 };
 
-export const getTotalOrders = (
-  preprocessedData: MappedAnalyticsData
-): string => {
-  const total = preprocessedData.aggregatedByChannel.reduce(
+export const getTotalOrders = (analyticsData: MappedAnalyticsData): string => {
+  const total = analyticsData.aggregatedByChannel.reduce(
     (acc, channel) => acc + channel.total_orders,
     0
   );
@@ -31,39 +27,43 @@ export const getTotalOrders = (
 };
 
 export const getTopSaler = (
-  preprocessedData: MappedAnalyticsData
-): { brandName: Brand | "Unknown"; totalSales: string; logo: string } => {
-  const topSaler = preprocessedData.aggregatedByChannel.reduce(
+  analyticsData: MappedAnalyticsData
+): {
+  brand_name: Brand | "Unknown";
+  totalSales: string;
+  logo: string;
+} => {
+  const topSaler = analyticsData.aggregatedByChannel.reduce(
     (max, curr) => (max.total_sales > curr.total_sales ? max : curr),
-    preprocessedData.aggregatedByChannel[0]
+    analyticsData.aggregatedByChannel[0]
   );
   return {
-    brandName: topSaler.brandName,
-    logo: appConfig.brandImages[topSaler.brandName],
+    brand_name: topSaler.brand_name,
+    logo: getBrandLogo(topSaler.brand_name),
     totalSales: topSaler ? formatCurrencyPLN(topSaler.total_sales) : "0",
   };
 };
 
 export const getTopOrder = (
-  preprocessedData: MappedAnalyticsData
-): { brandName: Brand; totalOrders: number; logo: string } => {
-  const topOrder = preprocessedData.aggregatedByChannel.reduce(
+  analyticsData: MappedAnalyticsData
+): { brand_name: Brand; totalOrders: string; logo: string } => {
+  const topOrder = analyticsData.aggregatedByChannel.reduce(
     (max, curr) => (max.total_orders > curr.total_orders ? max : curr),
-    preprocessedData.aggregatedByChannel[0]
+    analyticsData.aggregatedByChannel[0]
   );
   return {
-    brandName: topOrder.brandName,
-    logo: appConfig.brandImages[topOrder.brandName],
-    totalOrders: topOrder ? topOrder.total_orders : 0,
+    brand_name: topOrder.brand_name,
+    logo: getBrandLogo(topOrder.brand_name),
+    totalOrders: topOrder ? formatNumber(topOrder.total_orders) : "0",
   };
 };
 
 export const getTopPerformingDay = (
-  preprocessedData: MappedAnalyticsData
+  analyticsData: MappedAnalyticsData
 ): string => {
-  const mostSalesDayObj = preprocessedData.aggregatedByDate.reduce(
+  const mostSalesDayObj = analyticsData.aggregatedByDate.reduce(
     (max, curr) => (max.total_sales > curr.total_sales ? max : curr),
-    preprocessedData.aggregatedByDate[0]
+    analyticsData.aggregatedByDate[0]
   );
   const mostSalesDay = mostSalesDayObj
     ? format(new Date(mostSalesDayObj.date), "yyyy-MM-dd")

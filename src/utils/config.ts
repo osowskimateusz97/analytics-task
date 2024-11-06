@@ -1,4 +1,10 @@
-import { ChannelName, Brand } from "@/types/appConfig";
+import { appConfig } from "@/config";
+import { ChannelName } from "@/types/analytics";
+import { Brand } from "@/types/appConfig";
+
+export const getBrandLogo = (brand: Brand) => appConfig.brand.logos[brand];
+
+export const getBrandColor = (brand: Brand) => appConfig.brand.colors[brand];
 
 export const getBrandName = (channel_name: ChannelName): Brand => {
   const channels: Record<ChannelName, Brand> = {

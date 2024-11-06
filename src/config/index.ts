@@ -1,8 +1,8 @@
 import { datePickerConfig } from "./datePickerConfig";
-import { brandImagesConfig } from "./brandImageConfig";
+import { brandConfig } from "./brandConfig";
 import { AppConfig } from "@/types/appConfig";
 
 export const appConfig: Readonly<AppConfig> = {
   datePicker: datePickerConfig,
-  brandImages: brandImagesConfig,
+  brand: brandConfig,
 };

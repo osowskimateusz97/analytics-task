@@ -1,21 +1,12 @@
-import { Brand, ChannelName } from "./appConfig";
+import { Analytics, RawChannelName } from "@/schemas/analytics";
+import { Brand } from "./appConfig";
 
-export interface Base {
-  date: string;
-  channel_type: string;
-  status_id: number;
-  sum_sales: number;
-  count_orders: number;
-}
+export type ChannelName = Exclude<RawChannelName, ""> | "unknown";
 
-export interface ApiResponse extends Base {
-  channel_name?: Exclude<ChannelName, "Unknown">;
-}
-
-export interface AnalyticsData extends Base {
+export interface AnalyticsData extends Omit<Analytics, "channel_name"> {
   channel_name: ChannelName;
-  brandLogo: string;
-  brandName: string;
+  brand_logo: string;
+  brand_name: string;
 }
 
 export interface DateAggregation {
@@ -26,8 +17,9 @@ export interface DateAggregation {
 }
 
 export interface ChannelAggregation {
-  channelName: ChannelName;
-  brandName: Brand;
+  channel_name: ChannelName;
+  brand_name: Brand;
+  brand_color: string;
   total_sales: number;
   total_orders: number;
   items: AnalyticsData[];

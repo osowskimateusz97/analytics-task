@@ -17,8 +17,8 @@ export const RecentSales: React.FC<RecentSalesProps> = ({ data }) => {
             <Avatar className="h-12 w-12">
               <AvatarImage
                 className="bg-contain p-1"
-                src={item.brandLogo}
-                alt={item.brandName}
+                src={item.brand_logo}
+                alt={item.brand_name}
               />
               <AvatarFallback>
                 <div className="w-12 h-12 bg-gray-300" />
@@ -26,11 +26,11 @@ export const RecentSales: React.FC<RecentSalesProps> = ({ data }) => {
             </Avatar>
             <div className="ml-4 space-y-1">
               <p className="text-sm font-medium leading-none capitalize">
-                {item.brandName}
+                {item.brand_name}
               </p>
               <p className="text-sm text-muted-foreground">{`${item.count_orders} Orders`}</p>
             </div>
-            <div className="ml-auto font-medium">{`+$${item.sum_sales}`}</div>
+            <div className="ml-auto font-medium">{`+${item.sum_sales}`}</div>
           </div>
         ))}
       </div>

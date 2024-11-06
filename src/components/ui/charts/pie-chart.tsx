@@ -1,129 +1,98 @@
-"use client";
-
-import * as React from "react";
-import { TrendingUp } from "lucide-react";
-import { Label, Pie, PieChart } from "recharts";
+import { Pie, PieChart } from "recharts";
 
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { ChannelName } from "@/types/analytics";
+import { Brand } from "@/types/appConfig";
 
-export const description = "A donut chart with text";
+export const description = "A pie chart with a label list";
 
-const chartData = [
-  { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
-  { browser: "safari", visitors: 200, fill: "var(--color-safari)" },
-  { browser: "firefox", visitors: 287, fill: "var(--color-firefox)" },
-  { browser: "edge", visitors: 173, fill: "var(--color-edge)" },
-  { browser: "other", visitors: 190, fill: "var(--color-other)" },
-];
+export interface PieChartElement {
+  brand: Brand;
+  brandColor: string;
+  channel_name: ChannelName;
+  value: number;
+}
 
-const chartConfig = {
-  visitors: {
-    label: "Visitors",
-  },
-  chrome: {
-    label: "Chrome",
-    color: "hsl(var(--chart-1))",
-  },
-  safari: {
-    label: "Safari",
-    color: "hsl(var(--chart-2))",
-  },
-  firefox: {
-    label: "Firefox",
-    color: "hsl(var(--chart-3))",
-  },
-  edge: {
-    label: "Edge",
-    color: "hsl(var(--chart-4))",
-  },
-  other: {
-    label: "Other",
-    color: "hsl(var(--chart-5))",
-  },
-} satisfies ChartConfig;
+export interface PieChartProps {
+  title: string;
+  description: string;
+  chart_type: string;
+  data: PieChartElement[];
+  formatter?: (value: unknown) => string;
+}
 
-export function PieChartComponent() {
-  const totalVisitors = React.useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.visitors, 0);
-  }, []);
+export function PieChartComponent({
+  title,
+  description,
+  data,
+  chart_type,
+  formatter,
+}: PieChartProps) {
+  const chartConfig = data.reduce((acc, curr) => {
+    const { channel_name } = curr;
+    acc[channel_name] = {
+      label: curr.brand,
+      color: curr.brandColor,
+    };
+    return acc;
+  }, {} as Record<ChannelName, { label: string; color: string }>) satisfies ChartConfig;
+
+  const chartData = data.map((e) => ({
+    channel_name: e.channel_name,
+    brandName: e.brand,
+    [chart_type]: e.value,
+    fill: e.brandColor,
+  }));
 
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
-        <CardTitle>Pie Chart - Donut with Text</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer
-          config={chartConfig}
-          className="mx-auto aspect-square max-h-[250px]"
+          config={{
+            ...chartConfig,
+            [chart_type]: { label: chart_type.toUpperCase() },
+          }}
+          className="mx-auto aspect-square max-h-[250px] [&_.recharts-text]:fill-background"
         >
           <PieChart>
             <ChartTooltip
+              formatter={(value, _, props) => {
+                const { payload } = props;
+                let displayValue = value;
+                if (formatter) {
+                  displayValue = formatter(value);
+                }
+                return `${displayValue} ${payload.brandName}`;
+              }}
               cursor={false}
               content={<ChartTooltipContent hideLabel />}
             />
-            <Pie
-              data={chartData}
-              dataKey="visitors"
-              nameKey="browser"
-              innerRadius={60}
-              strokeWidth={5}
-            >
-              <Label
-                content={({ viewBox }) => {
-                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                    return (
-                      <text
-                        x={viewBox.cx}
-                        y={viewBox.cy}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                      >
-                        <tspan
-                          x={viewBox.cx}
-                          y={viewBox.cy}
-                          className="fill-foreground text-3xl font-bold"
-                        >
-                          {totalVisitors.toLocaleString()}
-                        </tspan>
-                        <tspan
-                          x={viewBox.cx}
-                          y={(viewBox.cy || 0) + 24}
-                          className="fill-muted-foreground"
-                        >
-                          Visitors
-                        </tspan>
-                      </text>
-                    );
-                  }
-                }}
-              />
-            </Pie>
+            <Pie data={chartData} dataKey={chart_type} nameKey="channel_name" />
+            <ChartLegend
+              content={<ChartLegendContent nameKey="channel_name" />}
+              className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
+            />
           </PieChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col gap-2 text-sm">
-        <div className="flex items-center gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
-        </div>
-      </CardFooter>
     </Card>
   );
 }
