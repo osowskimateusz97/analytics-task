@@ -13,26 +13,29 @@ import MainTemplate from "./templates/MainTemplate";
 
 const queryClient = new QueryClient();
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <MainTemplate />,
-    children: [
-      {
-        path: "",
-        element: <DashboardPage />,
-      },
-      {
-        path: "sales",
-        element: <SalesPage />,
-      },
-      {
-        path: "orders",
-        element: <OrdersPage />,
-      },
-    ],
-  },
-]);
+const router = createBrowserRouter(
+  [
+    {
+      path: "/",
+      element: <MainTemplate />,
+      children: [
+        {
+          path: "",
+          element: <DashboardPage />,
+        },
+        {
+          path: "sales",
+          element: <SalesPage />,
+        },
+        {
+          path: "orders",
+          element: <OrdersPage />,
+        },
+      ],
+    },
+  ],
+  { basename: "/" }
+);
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
