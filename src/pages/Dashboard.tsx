@@ -1,7 +1,4 @@
-import { BarChartMixed } from "@/components/ui/charts/bar-chart";
-import { LineChartComponent } from "@/components/ui/charts/line-chart";
-import { MainNav } from "@/components/Dashboard/main-nav";
-import { RecentSales } from "@/components/Dashboard/recent-sales";
+import { RecentSales } from "@/components/ui/recent-sales";
 import {
   Card,
   CardContent,
@@ -9,13 +6,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { DateRangePicker } from "@/components/ui/date-picker/date-range-picker";
-import { useDateRange } from "@/providers/date/dateHook";
 import { fetchAnalytics } from "@/queries/fetchAnalytics";
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
-import { PieChartComponent } from "@/components/ui/charts/pie-chart";
-import { ModeToggle } from "@/components/ui/mode-toggle";
 import {
   convertToChartData,
   getLatestSales,
@@ -24,29 +16,25 @@ import {
   getTotalOrders,
   getTotalSales,
 } from "@/utils/calculations";
-import { BarChartWithTooltip } from "@/components/ui/charts/bar-chart-with-label";
-import { appConfig } from "@/config";
+import { BarChartWithTooltip } from "@/components/ui/charts/bar-chart";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { analyticsDataMapping } from "@/utils/mappings/analyticsDataMapping";
-import { getPieChartData } from "@/utils/mappings/chartMapping";
-import { formatCurrencyPLN } from "@/utils/currencyFormatting";
+import Spinner from "@/components/ui/spinner";
+import DolarIcon from "@/components/ui/icons/DolarIcon";
+import OrderIcon from "@/components/ui/icons/OrderIcon";
+import StarIcon from "@/components/ui/icons/StarIcon";
+import StatCard from "@/components/ui/StatCard";
 
 export default function DashboardPage() {
-  const {
-    dateRange: { from, to },
-    handleDateRange,
-  } = useDateRange();
-
   // Queries
   const { data, status } = useQuery({
-    queryKey: [format(from, "yyyy-MM-dd"), format(to, "yyyy-MM-dd")],
-    queryFn: () => fetchAnalytics(from, to),
-    enabled: !!(from && to),
+    queryKey: ["analytics"],
+    queryFn: async () => fetchAnalytics(),
     select: analyticsDataMapping,
   });
-  console.log("data", data);
+
   if (status === "pending") {
-    return <p>Data is fetching...</p>;
+    return <Spinner />;
   }
 
   if (status === "error") {
@@ -54,175 +42,98 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="hidden flex-col md:flex">
-      <div className="flex-1 space-y-4 p-8 pt-6">
-        <div className="flex items-center justify-between space-y-2">
-          <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-          <div className="flex items-center space-x-2">
-            <DateRangePicker
-              initialDateFrom={appConfig.datePicker.from}
-              initialDateTo={appConfig.datePicker.to}
-              onUpdate={(props) => handleDateRange(props.range)}
-            />
-            <ModeToggle />
-          </div>
-        </div>
-        <MainNav />
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Sales</CardTitle>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                className="h-5 w-5 text-muted-foreground"
-              >
-                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-              </svg>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{getTotalSales(data)}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Orders</CardTitle>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                className="h-5 w-5 text-muted-foreground"
-              >
-                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-              </svg>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{getTotalOrders(data)}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Top Saler</CardTitle>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                className="h-5 w-5 text-muted-foreground"
-              >
-                <rect width="20" height="14" x="2" y="5" rx="2" />
-                <path d="M2 10h20" />
-              </svg>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold flex items-center gap-2">
-                <p>{getTopSaler(data)?.brand_name}</p>
-                {
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage
-                      className="bg-contain p-1"
-                      src={getTopSaler(data)?.logo}
-                      alt={getTopSaler(data)?.brand_name}
-                    />
-                    <AvatarFallback>
-                      <div className="w-12 h-12 bg-gray-300" />
-                    </AvatarFallback>
-                  </Avatar>
-                }
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Total sales: {getTopSaler(data)?.totalSales}
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Top Orders</CardTitle>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                className="h-5 w-5 text-muted-foreground"
-              >
-                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-              </svg>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold  flex items-center gap-2">
-                <p>{getTopOrder(data).brand_name}</p>
-                {
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage
-                      className="bg-contain p-1"
-                      src={getTopSaler(data)?.logo}
-                      alt={getTopSaler(data)?.brand_name}
-                    />
-                    <AvatarFallback>
-                      <div className="w-12 h-12 bg-gray-300" />
-                    </AvatarFallback>
-                  </Avatar>
-                }
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Total orders: {getTopOrder(data).totalOrders}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-8">
-          <div className="col-span-4">
-            <BarChartWithTooltip
-              title="Sales in detail"
-              label="sales"
-              data={convertToChartData(data.aggregatedByDate)}
-            />
-          </div>
-          <Card className="col-span-4">
-            <CardHeader>
-              <CardTitle>Recent Sales</CardTitle>
-              <CardDescription>The list recent 20 sales</CardDescription>
-            </CardHeader>
-            <CardContent className="p-3">
-              <RecentSales data={getLatestSales(data.aggregatedByDate)} />
-            </CardContent>
-          </Card>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 max-h-28">
-          <div className="col-span-2">
-            <PieChartComponent
-              title="Sales in details"
-              description="Present sales by channels"
-              chart_type="sales"
-              data={getPieChartData(data.aggregatedByChannel, "total_sales")}
-              formatter={formatCurrencyPLN}
-            />
-          </div>
-          <div className="col-span-2">
-            <BarChartMixed />
-          </div>
-          <div className="col-span-3">
-            <LineChartComponent />
-          </div>
-        </div>
+    <>
+      <div className="grid gap-4  md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Sales"
+          iconComponent={<DolarIcon />}
+          content={getTotalSales(data)}
+        />
+        <StatCard
+          title="Orders"
+          iconComponent={<OrderIcon />}
+          content={getTotalOrders(data)}
+        />
+        <StatCard
+          title="Top Saler"
+          iconComponent={<StarIcon />}
+          content={
+            <div className="flex items-center gap-2">
+              <p>{getTopSaler(data)?.brand_name}</p>
+              <Avatar className="h-12 w-12">
+                <AvatarImage
+                  className="bg-contain p-1"
+                  src={getTopSaler(data)?.logo}
+                  alt={getTopSaler(data)?.brand_name}
+                />
+                <AvatarFallback>
+                  <div className="w-12 h-12 bg-gray-300" />
+                </AvatarFallback>
+              </Avatar>
+            </div>
+          }
+          detail={`Total sales: ${getTopSaler(data)?.totalSales}`}
+        />
+        <StatCard
+          title="Top Orders"
+          iconComponent={<StarIcon />}
+          content={
+            <div className="text-2xl font-bold  flex items-center gap-2">
+              <p>{getTopOrder(data).brand_name}</p>
+              {
+                <Avatar className="h-12 w-12">
+                  <AvatarImage
+                    className="bg-contain p-1"
+                    src={getTopSaler(data)?.logo}
+                    alt={getTopSaler(data)?.brand_name}
+                  />
+                  <AvatarFallback>
+                    <div className="w-12 h-12 bg-gray-300" />
+                  </AvatarFallback>
+                </Avatar>
+              }
+            </div>
+          }
+          detail={`Total sales: ${getTopSaler(data)?.totalSales}`}
+        />
       </div>
-    </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-8">
+        <div className="col-span-3">
+          <BarChartWithTooltip
+            title="Sales"
+            label="sales"
+            data={convertToChartData(data.aggregatedByDate)}
+            chartConfig={{
+              sales: {
+                label: "sales",
+                color: "hsl(var(--chart-1))",
+              },
+            }}
+          />
+        </div>
+        <div className="col-span-3">
+          <BarChartWithTooltip
+            title="Orders"
+            label="orders"
+            data={convertToChartData(data.aggregatedByDate)}
+            chartConfig={{
+              orders: {
+                label: "orders",
+                color: "hsl(var(--chart-2))",
+              },
+            }}
+          />
+        </div>
+        <Card className="col-span-2 self-start">
+          <CardHeader>
+            <CardTitle>Recent Sales</CardTitle>
+            <CardDescription>The list of recent 20 sales</CardDescription>
+          </CardHeader>
+          <CardContent className="p-3">
+            <RecentSales data={getLatestSales(data.aggregatedByDate)} />
+          </CardContent>
+        </Card>
+      </div>
+    </>
   );
 }

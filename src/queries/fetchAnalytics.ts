@@ -18,14 +18,17 @@ import { filterDataByDateRange } from "@/utils/filterDbResponse";
  * the API endpoint will receive `startDate` and `endDate` to filter the data on the server.
  */
 export const fetchAnalytics = async (
-  startDate: Date,
-  endDate: Date
+  startDate?: Date,
+  endDate?: Date
 ): Promise<AnalyticsCollection> => {
   try {
     AnalyticCollectionSchema.parse(analyticsData);
     // TODO: Replace the following logic with a real API request when backend is ready.
     return new Promise((res) =>
       setTimeout(() => {
+        if (!startDate || !endDate)
+          return res(analyticsData as AnalyticsCollection);
+
         const filteredAnalyticsByDate = filterDataByDateRange(
           analyticsData as AnalyticsCollection,
           startDate,

@@ -52,7 +52,6 @@ const aggregateByChannel = (
   channelAggregation.brand_color = brand_color;
   channelAggregation.items.push({
     ...item,
-
     channel_name,
     brand_logo,
     brand_name,

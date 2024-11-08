@@ -32,7 +32,7 @@ export interface PieChartProps {
   description: string;
   chart_type: string;
   data: PieChartElement[];
-  formatter?: (value: unknown) => string;
+  formatter?: (value: number) => string;
 }
 
 export function PieChartComponent({
@@ -78,9 +78,9 @@ export function PieChartComponent({
                 const { payload } = props;
                 let displayValue = value;
                 if (formatter) {
-                  displayValue = formatter(value);
+                  displayValue = formatter(value as number);
                 }
-                return `${displayValue} ${payload.brandName}`;
+                return `${payload.brandName} - ${displayValue}`;
               }}
               cursor={false}
               content={<ChartTooltipContent hideLabel />}

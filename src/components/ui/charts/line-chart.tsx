@@ -1,98 +1,97 @@
-import { TrendingUp } from "lucide-react";
-import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
-export const description = "A multiple line chart";
+interface LineChartProps {
+  data: Record<string, unknown>[];
+  chartConfig: ChartConfig;
+  formatter?: (value: number) => string;
+}
 
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
-];
-
-const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "hsl(var(--chart-1))",
-  },
-  mobile: {
-    label: "Mobile",
-    color: "hsl(var(--chart-2))",
-  },
-} satisfies ChartConfig;
-
-export function LineChartComponent() {
+export function LineChartComponent({
+  data,
+  chartConfig,
+  formatter,
+}: LineChartProps) {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Line Chart - Multiple</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
-      </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="max-h-96">
-          <LineChart
-            accessibilityLayer
-            data={chartData}
-            margin={{
-              left: 12,
-              right: 12,
-            }}
-          >
+        <ChartContainer config={{ ...chartConfig, views: { label: "Views" } }}>
+          <AreaChart data={data}>
+            <defs>
+              {Object.keys(chartConfig).map((el) => (
+                <linearGradient id={`fill${el}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="5%"
+                    stopColor={chartConfig[el].color}
+                    stopOpacity={0.8}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor={chartConfig[el].color}
+                    stopOpacity={0.1}
+                  />
+                </linearGradient>
+              ))}
+            </defs>
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="month"
+              dataKey="date"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
+              minTickGap={32}
+              tickFormatter={(value) => {
+                const date = new Date(value);
+                return date.toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                });
+              }}
             />
-            <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-            <Line
-              dataKey="desktop"
-              type="monotone"
-              stroke="var(--color-desktop)"
-              strokeWidth={2}
-              dot={false}
+            <ChartTooltip
+              cursor={false}
+              formatter={(value, name) => {
+                let displayValue = value;
+                if (formatter) {
+                  displayValue = formatter(value as number);
+                }
+                return `${chartConfig[name].label} - ${displayValue}`;
+              }}
+              content={
+                <ChartTooltipContent
+                  labelFormatter={(value) => {
+                    return new Date(value).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                    });
+                  }}
+                  indicator="dot"
+                />
+              }
             />
-            <Line
-              dataKey="mobile"
-              type="monotone"
-              stroke="var(--color-mobile)"
-              strokeWidth={2}
-              dot={false}
-            />
-          </LineChart>
+            {Object.keys(chartConfig).map((el) => (
+              <Area
+                connectNulls
+                dataKey={el}
+                type="natural"
+                fill={`url(#fill${el})`}
+                stroke={chartConfig[el].color}
+              />
+            ))}
+
+            <ChartLegend content={<ChartLegendContent />} />
+          </AreaChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter>
-        <div className="flex w-full items-start gap-2 text-sm">
-          <div className="grid gap-2">
-            <div className="flex items-center gap-2 font-medium leading-none">
-              Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-            </div>
-            <div className="flex items-center gap-2 leading-none text-muted-foreground">
-              Showing total visitors for the last 6 months
-            </div>
-          </div>
-        </div>
-      </CardFooter>
     </Card>
   );
 }

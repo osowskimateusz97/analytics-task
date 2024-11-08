@@ -1,5 +1,5 @@
 import { AnalyticsCollection } from "@/schemas/analytics";
-import { parseISO, isWithinInterval } from "date-fns";
+import { parseISO, isWithinInterval, startOfDay, endOfDay } from "date-fns";
 
 /**
  * Filters a list of channel analytics data to include only those entries within the specified date range.
@@ -16,6 +16,9 @@ export function filterDataByDateRange(
 ) {
   return data.filter((item) => {
     const itemDate = parseISO(item.date);
-    return isWithinInterval(itemDate, { start: startDate, end: endDate });
+    return isWithinInterval(itemDate, {
+      start: startOfDay(startDate),
+      end: endOfDay(endDate),
+    });
   });
 }

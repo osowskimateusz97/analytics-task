@@ -1,8 +1,9 @@
 import React from "react";
-import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "./avatar";
 import { AnalyticsData } from "@/types/analytics";
-import { ScrollArea } from "../ui/scroll-area";
+import { ScrollArea } from "./scroll-area";
 
+// Refactor interface to be more reusable
 interface RecentSalesProps {
   data: AnalyticsData[];
 }
@@ -10,8 +11,8 @@ interface RecentSalesProps {
 // RecentSales component
 export const RecentSales: React.FC<RecentSalesProps> = ({ data }) => {
   return (
-    <ScrollArea className="h-[300px] rounded-md pr-5">
-      <div className="space-y-8">
+    <ScrollArea className=" self-start rounded-md pr-5 ">
+      <div className="space-y-8 h-[350px]">
         {data.map((item, index) => (
           <div key={index} className="flex items-center border-b-2 pb-3">
             <Avatar className="h-12 w-12">
